@@ -15,12 +15,16 @@ public class Basket {
     public Basket(double posXa, double posYa, double posXb, double posYb) {
         this.posXa = posXa;
         this.posYa = posYa;
-        this.posXb = posXb;
-        this.posYb = posYb;
+        this.posXb = posXa+110;
+        this.posYb = posYa;
     }
 
-    public void draw (GraphicsContext g) {
-        g.drawImage(imageBasket, this.posXa-150,-this.posYa-150+600);
+    public void draw2 (GraphicsContext g) {
+        g.drawImage(imageBasket, this.posXa-50,-this.posYa-220+600);
+    }
+
+    public void draw( GraphicsContext g){
+        g.fillRect(this.posXa+50,-this.posYa+600-50,110,2);
     }
 
     public double getPosXa() {

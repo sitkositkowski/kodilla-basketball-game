@@ -59,11 +59,6 @@ public class Basketball extends Application {
         grid.setHgap(5.5);
         grid.setVgap(5.5);
 
-
-        ImageView imgBall = new ImageView(imageBall);
-        ImageView imgBasket = new ImageView(imageBasket);
-        grid.add(imgBall,0,0);
-        grid.add(imgBasket,10,0);
         grid.add(drawbtn, 0, 5);
         grid.add(scrollBarVelocity, 0, 10);
         grid.add(scrollBarAngle, 0, 15);
