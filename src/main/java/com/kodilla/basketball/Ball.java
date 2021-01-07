@@ -2,7 +2,6 @@ package com.kodilla.basketball;
 
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
-import javafx.scene.paint.Color;
 
 import java.lang.Math;
 import java.util.ArrayList;
@@ -49,10 +48,6 @@ public class Ball {
     }
 
     public void draw(GraphicsContext g) {
-        /*g.setFill(Color.BLACK);
-        g.fillOval(10,10,10,10);
-        g.setStroke(Color.BLACK);
-        g.strokeOval(this.posX,600-this.posY,10,10);*/
         g.drawImage(imageBall, this.posX-50,-this.posY-50+600);
     }
 

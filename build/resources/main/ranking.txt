@@ -1,0 +1,4 @@
+Player I | points: 2, accuracy: 0.0
+Player I | points: 2, accuracy: 0.5
+Player I | points: -3, accuracy: 0.16666666666666666
+Player I | points: 0, accuracy: NaN

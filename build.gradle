@@ -10,7 +10,7 @@ javafx {
 
 group 'org.example'
 version '1.0-SNAPSHOT'
-mainClassName = 'com.kodilla.basketball.Basketball2'
+mainClassName = 'com.kodilla.basketball.BasketballGame'
 
 repositories {
     mavenCentral()

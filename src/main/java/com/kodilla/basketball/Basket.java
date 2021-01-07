@@ -2,7 +2,6 @@ package com.kodilla.basketball;
 
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
-import javafx.scene.paint.Color;
 
 public class Basket {
 
@@ -10,7 +9,7 @@ public class Basket {
     private double posYa;
     private double posXb;
     private double posYb;
-    private Image imageBasket = new Image("file:src/main/resources/basket.png",300,300,true,true);
+    private final Image imageBasket = new Image("file:src/main/resources/basket.png",300,300,true,true);
 
     public Basket(double posXa, double posYa, double posXb, double posYb) {
         this.posXa = posXa;
