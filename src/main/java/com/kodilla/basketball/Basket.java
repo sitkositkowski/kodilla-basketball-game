@@ -11,7 +11,7 @@ public class Basket {
     private double posYb;
     private final Image imageBasket = new Image("file:src/main/resources/basket.png",300,300,true,true);
 
-    public Basket(double posXa, double posYa, double posXb, double posYb) {
+    public Basket(double posXa, double posYa) {
         this.posXa = posXa;
         this.posYa = posYa;
         this.posXb = posXa+110;

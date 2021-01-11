@@ -14,14 +14,12 @@ import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 
 import java.io.BufferedWriter;
-import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class BasketballGame extends Application {
@@ -30,11 +28,12 @@ public class BasketballGame extends Application {
     private int points;
     private int attempts;
     private int pointSum;
+    Random random = new Random();
     double[] arrowXY = new double[]{0.0,0.0};
     Ball ball = new Ball(1, 50, 50);
-    Basket basket = new Basket(400, 350, 550, 400);
+    Basket basket = new Basket(400, 350);
     private final Image imageLogo = new Image("file:src/main/resources/logo2.png",120,200,true,true);
-    private final Image icon = new Image("file:src/main/resources/ball2.png",120,120,true,true);
+    private final Image icon = new Image("file:src/main/resources/ball.png",120,120,true,true);
     private final Path path = Paths.get("C:\\Users\\Karol\\Development\\Java\\kodilla-basketball-game\\src\\main\\resources\\ranking.txt");
     private int bestScore = checkHighScore();
 
@@ -52,7 +51,6 @@ public class BasketballGame extends Application {
         stage.setTitle("Basketball game");
         stage.setResizable(false);
         stage.show();
-
     }
 
     private BorderPane makeCanvas() {
@@ -61,7 +59,7 @@ public class BasketballGame extends Application {
         StackPane canvasHolder = new StackPane(canvas);
         canvasHolder.setStyle("-fx-border-width: 2px; -fx-border-color: #444");
         BorderPane root = new BorderPane(canvasHolder);
-        root.setStyle("-fx-border-width: 1px; -fx-border-color: black");
+        root.setStyle("-fx-border-width: 1px; -fx-border-color: #000000");
         root.setBottom(makeToolPanel());
         root.setLeft(addVBox());
         return root;
@@ -75,9 +73,9 @@ public class BasketballGame extends Application {
         ball.draw(g);
         basket.draw2(g);
         basket.draw(g);
-        g.strokeText(points + "/" + attempts, 50, 50);
-        g.strokeText("points: " + pointSum, 50, 70);
-        g.strokeText("Highscore: " + bestScore, 50, 90);
+        g.strokeText("Goals: " + points + " / Attempts: " + attempts, 50, 50);
+        g.strokeText("Points: " + pointSum, 50, 70);
+        g.strokeText("High Score: " + bestScore, 50, 90);
         drawArrow(g,ball.getPosX(),ball.getPosY(),arrowXY[0], arrowXY[1]);
         for (List<Double> point1: ball.getTrajectory()) {
             if (point1 != null) {
@@ -99,41 +97,23 @@ public class BasketballGame extends Application {
         sliderVelocity.setShowTickMarks(true);
 
         sliderVelocity.setBlockIncrement(10);
-
-        // Adding Listener to value property.
-        //
         sliderVelocity.valueProperty().addListener((observable, oldValue, newValue) -> {
-
-            //System.out.println("New value: " + newValue);
             arrowXY = new double[]{sliderVelocity.getValue(),Math.toRadians(sliderAngle.getValue())};
-            //System.out.println(sliderVelocity.getValue()+","+Math.toRadians(sliderAngle.getValue())+","+sliderAngle.getValue());
             paintCanvas();
         });
-
-
 
         sliderAngle.setMin(0);
         sliderAngle.setMax(90);
         sliderAngle.setValue(30);
         sliderAngle.setBlockIncrement(15);
         sliderAngle.setMajorTickUnit(30);
-        //sliderAngle.setMinorTickCount(6);
         sliderAngle.setShowTickLabels(true);
         sliderAngle.setShowTickMarks(true);
 
-
-        // Adding Listener to value property.
-        //
         sliderAngle.valueProperty().addListener((observable, oldValue, newValue) -> {
-
-            //System.out.println("New value: " + newValue);
             arrowXY = new double[]{sliderVelocity.getValue(),Math.toRadians(sliderAngle.getValue())};
-            //System.out.println(sliderVelocity.getValue()+","+Math.toRadians(sliderAngle.getValue())+","+sliderAngle.getValue());
             paintCanvas();
         });
-
-
-
 
 
         Button drawbtn = new Button();
@@ -142,7 +122,7 @@ public class BasketballGame extends Application {
         drawbtn.setOnAction((e) -> {
 
             System.out.println("Throw parameter: velocity: " + sliderVelocity.getValue() + ", angle: " + sliderAngle.getValue() + "," + Math.toRadians(sliderAngle.getValue()));
-            ball.setVelocity(sliderVelocity.getValue());
+            ball.setVelocity(sliderVelocity.getValue()*1.1);
             ball.setAngle(Math.toRadians(sliderAngle.getValue()));
             boolean isHit = ball.throwBall(basket);
             System.out.println("Is hit? " + isHit);
@@ -151,22 +131,20 @@ public class BasketballGame extends Application {
             pointSum = points * 2 - (attempts-points);
             throwBall();
 
+            Alert alert;
+
             if (isHit) {
-                Alert alert = new Alert(Alert.AlertType.INFORMATION);
-                alert.setTitle("Information Dialog");
-                alert.setHeaderText(null);
-                alert.setOnHiding((event) -> reset());
-                alert.setContentText("Is hit? " + isHit);
-                alert.showAndWait();
+                alert = new Alert(Alert.AlertType.INFORMATION);
+                alert.setContentText("You did it! The ball hit the basket and you score 2 points.");
             } else{
-                Alert alert = new Alert(Alert.AlertType.ERROR);
-                alert.setTitle("Information Dialog");
-                alert.setHeaderText(null);
-                alert.setOnHiding((event) -> reset());
-                alert.setContentText("Is hit? " + isHit);
-                alert.showAndWait();
+                alert = new Alert(Alert.AlertType.ERROR);
+                alert.setContentText("Unfortunately... you didn't make it this time. You lose 1 point.");
             }
 
+            alert.setTitle(null);
+            alert.setHeaderText(null);
+            alert.setOnHiding((event) -> reset());
+            alert.showAndWait();
 
         });
 
@@ -178,7 +156,6 @@ public class BasketballGame extends Application {
         tools.getChildren().add(labelAngle);
         tools.getChildren().add(sliderAngle);
         tools.getChildren().add(drawbtn);
-
 
         return tools;
     }
@@ -213,12 +190,6 @@ public class BasketballGame extends Application {
             result.ifPresent(this::saveResult);
         });
 
-        Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.setTitle("Information Dialog");
-        alert.setHeaderText(null);
-        alert.setContentText("I have a great message for you!" );
-
-
         final ImageView selectedImage = new ImageView();
         selectedImage.setImage(imageLogo);
         vbox.getChildren().addAll(selectedImage);
@@ -232,6 +203,8 @@ public class BasketballGame extends Application {
     public void reset (){
         ball.setPosX(50);
         ball.setPosY(50);
+        basket.setPosXa(random.nextInt(200)+300);
+        basket.setPosYa(random.nextInt(200)+250);
         sliderAngle.setValue(30);
         sliderVelocity.setValue(30);
         ball.setTrajectory(new ArrayList<>(100));
@@ -247,15 +220,15 @@ public class BasketballGame extends Application {
         double t;
         for (int i = 0; i<100; i++){
             t = time/100 *i;
-            //System.out.println(time);
+
             List<Double> point = new ArrayList<>();
             point.add(x0+ball.getVelocity()*t*Math.cos(ball.getAngle()));
             point.add(-(y0+ball.getVelocity()*t*Math.sin(ball.getAngle()) - 5 * Math.pow(t,2))+600);
             ball.getTrajectory().add(point);
-            //trajectory.add(point);
+
             ball.setPosX(x0+ball.getVelocity()*t*Math.cos(ball.getAngle()));
             ball.setPosY(y0+ball.getVelocity()*t*Math.sin(ball.getAngle()) - 5 * Math.pow(t,2));
-            //System.out.println(point);
+
             paintCanvas();
         }
     }
@@ -263,7 +236,6 @@ public class BasketballGame extends Application {
     void drawArrow(GraphicsContext gc, double x1, double y1, double velocity,double angle) {
         velocity = velocity*2;
 
-        System.out.println("("+ (Math.cos(angle))+","+(Math.sin(angle))+")");
         double beta = Math.asin(0.15/1.8);
         double K= 0.9 * velocity;
 
@@ -286,7 +258,7 @@ public class BasketballGame extends Application {
             bestScore = checkHighScore();
 
         } catch (IOException e) {
-            System.out.println("wystąpił błąd: " + e);
+            System.out.println("Error: " + e);
         }
     }
 
@@ -300,7 +272,7 @@ public class BasketballGame extends Application {
             return score;
 
         } catch (IOException e) {
-            System.out.println("wystąpił błąd: " + e);
+            System.out.println("Error: " + e);
             return 0;
         }
     }

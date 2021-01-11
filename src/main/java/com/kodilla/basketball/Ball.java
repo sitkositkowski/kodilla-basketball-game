@@ -41,7 +41,7 @@ public class Ball {
                     + Math.sqrt(x);
             x = x / g;
             System.out.println(x + "," + basket.getPosXa());
-            return (x < basket.getPosXb()) && (x > basket.getPosXa());
+            return (x < basket.getPosXa()+110) && (x > basket.getPosXa());
         }else{
             return false;
         }
