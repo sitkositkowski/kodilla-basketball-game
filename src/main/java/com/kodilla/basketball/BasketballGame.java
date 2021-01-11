@@ -20,10 +20,9 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.Scanner;
+import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class BasketballGame extends Application {
 
@@ -31,13 +30,13 @@ public class BasketballGame extends Application {
     private int points;
     private int attempts;
     private int pointSum;
-    private double accuracy;
     double[] arrowXY = new double[]{0.0,0.0};
     Ball ball = new Ball(1, 50, 50);
     Basket basket = new Basket(400, 350, 550, 400);
-    private final Image imageLogo = new Image("file:src/main/resources/logo2.png",120,120,true,true);
-    private Path path = Paths.get("C:\\Users\\Karol\\Development\\Java\\kodilla-basketball-game\\src\\main\\resources\\ranking.txt");
-    private int bestScore;
+    private final Image imageLogo = new Image("file:src/main/resources/logo2.png",120,200,true,true);
+    private final Image icon = new Image("file:src/main/resources/ball2.png",120,120,true,true);
+    private final Path path = Paths.get("C:\\Users\\Karol\\Development\\Java\\kodilla-basketball-game\\src\\main\\resources\\ranking.txt");
+    private int bestScore = checkHighScore();
 
     Slider sliderVelocity = new Slider();
     Slider sliderAngle= new Slider();
@@ -49,6 +48,7 @@ public class BasketballGame extends Application {
     public void start(Stage stage) {
         Scene scene = new Scene(makeCanvas(),900,700);
         stage.setScene(scene);
+        stage.getIcons().add(icon);
         stage.setTitle("Basketball game");
         stage.setResizable(false);
         stage.show();
@@ -77,6 +77,7 @@ public class BasketballGame extends Application {
         basket.draw(g);
         g.strokeText(points + "/" + attempts, 50, 50);
         g.strokeText("points: " + pointSum, 50, 70);
+        g.strokeText("Highscore: " + bestScore, 50, 90);
         drawArrow(g,ball.getPosX(),ball.getPosY(),arrowXY[0], arrowXY[1]);
         for (List<Double> point1: ball.getTrajectory()) {
             if (point1 != null) {
@@ -133,15 +134,13 @@ public class BasketballGame extends Application {
 
 
 
-        Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.setTitle("Information Dialog");
-        alert.setHeaderText(null);
-        alert.setOnHiding((e) -> reset());
+
 
         Button drawbtn = new Button();
         drawbtn.setText("Throw!");
-        drawbtn.setPrefSize(100,50);
+        drawbtn.setPrefSize(120,30);
         drawbtn.setOnAction((e) -> {
+
             System.out.println("Throw parameter: velocity: " + sliderVelocity.getValue() + ", angle: " + sliderAngle.getValue() + "," + Math.toRadians(sliderAngle.getValue()));
             ball.setVelocity(sliderVelocity.getValue());
             ball.setAngle(Math.toRadians(sliderAngle.getValue()));
@@ -151,21 +150,34 @@ public class BasketballGame extends Application {
             points += (isHit) ? 1 : 0;
             pointSum = points * 2 - (attempts-points);
             throwBall();
-            alert.setContentText("Is hit? " + isHit);
-            alert.showAndWait();
+
+            if (isHit) {
+                Alert alert = new Alert(Alert.AlertType.INFORMATION);
+                alert.setTitle("Information Dialog");
+                alert.setHeaderText(null);
+                alert.setOnHiding((event) -> reset());
+                alert.setContentText("Is hit? " + isHit);
+                alert.showAndWait();
+            } else{
+                Alert alert = new Alert(Alert.AlertType.ERROR);
+                alert.setTitle("Information Dialog");
+                alert.setHeaderText(null);
+                alert.setOnHiding((event) -> reset());
+                alert.setContentText("Is hit? " + isHit);
+                alert.showAndWait();
+            }
+
+
         });
 
         HBox tools = new HBox(10);
         tools.setPadding(new Insets(15, 12, 15, 12));
-        //tools.getChildren().add(resetbtn);
-        tools.getChildren().add(drawbtn);
-        //tools.getChildren().add(scrollBarVelocity);
-        //tools.getChildren().add(scrollBarAngle);
         tools.getChildren().add(label);
         tools.setAlignment(Pos.CENTER);
         tools.getChildren().add(sliderVelocity);
         tools.getChildren().add(labelAngle);
         tools.getChildren().add(sliderAngle);
+        tools.getChildren().add(drawbtn);
 
 
         return tools;
@@ -179,6 +191,7 @@ public class BasketballGame extends Application {
 
         Button resetbtn = new Button();
         resetbtn.setText("Start/Reset");
+        resetbtn.setPrefSize(120,30);
         resetbtn.setOnAction((e) -> {
             points = 0;
             pointSum = 0;
@@ -186,25 +199,32 @@ public class BasketballGame extends Application {
             reset();
         });
 
-        TextInputDialog dialog = new TextInputDialog("walter");
-        dialog.setTitle("Text Input Dialog");
-        dialog.setHeaderText("Look, a Text Input Dialog");
+        TextInputDialog dialog = new TextInputDialog("Player Name");
+        dialog.setTitle("Save");
+        dialog.setHeaderText("Save your score.");
         dialog.setContentText("Please enter your name:");
 
         Button savebtn = new Button();
         savebtn.setText("Save");
+        savebtn.setPrefSize(120,30);
         savebtn.setOnAction((e) -> {
 
             Optional<String> result = dialog.showAndWait();
-            result.ifPresent(name -> saveResult(name));
+            result.ifPresent(this::saveResult);
         });
+
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle("Information Dialog");
+        alert.setHeaderText(null);
+        alert.setContentText("I have a great message for you!" );
+
 
         final ImageView selectedImage = new ImageView();
         selectedImage.setImage(imageLogo);
-
         vbox.getChildren().addAll(selectedImage);
         vbox.getChildren().add(resetbtn);
         vbox.getChildren().add(savebtn);
+        vbox.setSpacing(50);
 
         return vbox;
     }
@@ -258,29 +278,31 @@ public class BasketballGame extends Application {
 
     public void saveResult(String name){
         try (BufferedWriter writer = new BufferedWriter(new FileWriter("C:\\Users\\Karol\\Development\\Java\\kodilla-basketball-game\\src\\main\\resources\\ranking.txt",true)))
-        {   accuracy = (double) points / attempts;
-            writer.write(name + " | points: " + pointSum + ", accuracy: " +  accuracy);
-            writer.newLine();
-        } catch (IOException e) {
-            System.out.println("wystąpił błąd: " + e);
-        }
-
-        try
         {
-            File myObj = new File("C:\\Users\\Karol\\Development\\Java\\kodilla-basketball-game\\src\\main\\resources\\bestscores.txt");
-            Scanner myReader = new Scanner(myObj);
-            String data = myReader.nextLine();
-            bestScore = Integer.parseInt(data);
-            if (bestScore< pointSum) {
-                try (BufferedWriter writer2 = new BufferedWriter(new FileWriter("C:\\Users\\Karol\\Development\\Java\\kodilla-basketball-game\\src\\main\\resources\\ranking.txt",true)))
-                {   accuracy = (double) points / attempts;
-                    writer2.write(name + " | points: " + pointSum + ", accuracy: " +  accuracy);
-                } catch (IOException e) {
-                    System.out.println("wystąpił błąd: " + e);
-                }
-            }
+            double accuracy = (double) points / attempts;
+            writer.write(name + ";" + pointSum + ";" + accuracy);
+            writer.newLine();
+
+            bestScore = checkHighScore();
+
         } catch (IOException e) {
             System.out.println("wystąpił błąd: " + e);
         }
     }
+
+    public int checkHighScore(){
+        try (Stream<String> stream = Files.lines(path)) {
+
+            int score = stream.map(x->x.split(";")).map(x-> x[1]).map(Integer::parseInt).mapToInt(v -> v)
+                    .max().orElseThrow(NoSuchElementException::new);
+
+            System.out.println(score);
+            return score;
+
+        } catch (IOException e) {
+            System.out.println("wystąpił błąd: " + e);
+            return 0;
+        }
+    }
+
 }
