@@ -34,7 +34,7 @@ public class BasketballGame extends Application {
     Basket basket = new Basket(400, 350);
     private final Image imageLogo = new Image("file:src/main/resources/logo2.png",120,200,true,true);
     private final Image icon = new Image("file:src/main/resources/ball.png",120,120,true,true);
-    private final Path path = Paths.get("C:\\Users\\Karol\\Development\\Java\\kodilla-basketball-game\\src\\main\\resources\\ranking.txt");
+    private final Path path = Paths.get("src/main/resources/ranking.txt");
     private int bestScore = checkHighScore();
 
     Slider sliderVelocity = new Slider();
@@ -249,7 +249,7 @@ public class BasketballGame extends Application {
     }
 
     public void saveResult(String name){
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter("C:\\Users\\Karol\\Development\\Java\\kodilla-basketball-game\\src\\main\\resources\\ranking.txt",true)))
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter("src/main/resources/ranking.txt",true)))
         {
             double accuracy = (double) points / attempts;
             writer.write(name + ";" + pointSum + ";" + accuracy);
